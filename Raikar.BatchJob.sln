@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Raikar.BatchJob", "Raikar.BatchJob\Raikar.BatchJob.csproj", "{CF7C4D5D-A02D-408B-9FCA-6EF8A4B63EA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raikar.BatchJob.Test", "Raikar.BatchJob.Test\Raikar.BatchJob.Test.csproj", "{B2522353-A221-4FC5-9F86-CD8901DBB4D1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CF7C4D5D-A02D-408B-9FCA-6EF8A4B63EA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF7C4D5D-A02D-408B-9FCA-6EF8A4B63EA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF7C4D5D-A02D-408B-9FCA-6EF8A4B63EA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF7C4D5D-A02D-408B-9FCA-6EF8A4B63EA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2522353-A221-4FC5-9F86-CD8901DBB4D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2522353-A221-4FC5-9F86-CD8901DBB4D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2522353-A221-4FC5-9F86-CD8901DBB4D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2522353-A221-4FC5-9F86-CD8901DBB4D1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FC076993-236E-4135-B28A-1BE75E9D14F3}
+	EndGlobalSection
+EndGlobal
