@@ -110,7 +110,14 @@ namespace Raikar.BatchJob
             _asyncMethodToProcess = asyncMethodToProcess;
             _cancellationToken = cancellationToken;
             _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Async Service", options);
-        }        
+        }
+        #endregion
+
+        #region Destructor
+        ~BatchJobService()
+        {
+            _progressBar.Dispose();
+        }
         #endregion
 
         public void GetBatchKeyList(GetBatchKeyList<KeyDataType> getBatchList)
