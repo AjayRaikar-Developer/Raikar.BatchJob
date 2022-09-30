@@ -188,7 +188,7 @@ namespace Raikar.BatchJob
             foreach (var key in batchKeyList)
             {
                 TxnResponseDto txnResponse = new TxnResponseDto();
-                Thread.Sleep(1000);
+                Thread.Sleep(1);
                 try
                 {
                     if (_methodToProcess != null)
