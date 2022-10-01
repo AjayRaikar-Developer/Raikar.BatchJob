@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html> 
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+    <h1><center>Batch Job Report</center></h1>
+
+    <table>
+        <tr>
+            <th>Total Count</th>
+            <th>Success Count</th>
+            <th>Fail Count</th>
+        </tr>
+        <tr>
+            <td>{TotalCount}</td>
+            <td>{SuccessCount}</td>
+            <td>{FailCount}</td>
+        </tr>
+    </table>
+
+    <br />
+
+    <h4><center>Batch Message : {BatchMessage}</center></h4>
+
+    <br />
+
+
+    <table>
+        <tr>
+            <th>Txn Key</th>
+            <th>Txn Description</th>
+            <th>Error Description</th>
+        </tr>
+        {ErrorDetails}
+    </table>
+
+    <br />
+
+</body>
+</html>

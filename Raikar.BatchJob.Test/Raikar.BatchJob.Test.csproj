@@ -9,11 +9,16 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="ShellProgressBar" Version="5.2.0" />
-  </ItemGroup>
+   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Raikar.BatchJob\Raikar.BatchJob.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<None Update="BatchReport.html">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

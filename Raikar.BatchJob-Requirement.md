@@ -10,7 +10,7 @@
 - Keep the batch process logic generic
 - Keep the processing mechanism configurable - single threaded or multi-threaded
 - Add a progress bar printing console
+- Print result as table in Console
 
 ## Features Backlog 
 - Create a Nuget Package
-- Print result as table in Console

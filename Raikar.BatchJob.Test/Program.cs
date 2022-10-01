@@ -2,41 +2,60 @@
 using Newtonsoft.Json;
 using Raikar.BatchJob.Test;
 using ShellProgressBar;
+using System.Diagnostics;
 using System.Drawing;
+using System.Text;
 
-Console.WriteLine("Raikar BatchJob Testing!");
+Console.WriteLine("Raikar BatchJob Testing!\n");
+Console.WriteLine("Even or Odd Number Check - \n");
 
 BatchJobTest batchJob = new BatchJobTest();
 var result = batchJob.Test();
 
+Console.WriteLine("Batch Job Response\n");
+Console.WriteLine(JsonConvert.SerializeObject(result));
 Console.WriteLine("\n");
 
-Console.WriteLine();
-Console.WriteLine(JsonConvert.SerializeObject(result));
+ConsoleTable.PrintLine();
+ConsoleTable.PrintRow("", "Error Details", "");
+ConsoleTable.PrintLine();
+ConsoleTable.PrintRow("Key", "Txn Description", "Error Description");
+ConsoleTable.PrintLine();
+foreach (var x in result.ErrorDetails)
+{
+    ConsoleTable.PrintRow(x.TxnKey.ToString(), x.TxnDescription, x.TxnErrorDescription);
+    ConsoleTable.PrintLine();
+}
 
-Console.ForegroundColor = ConsoleColor.White;
-Console.WriteLine("=====================================");
-Console.BackgroundColor = ConsoleColor.Magenta;
+Console.WriteLine("=======================");
+Console.ForegroundColor = ConsoleColor.Yellow;
 Console.WriteLine($"     Batch Result      ");
-Console.BackgroundColor = ConsoleColor.DarkBlue;
+Console.ForegroundColor = ConsoleColor.Cyan;
 Console.WriteLine($"\n Total Count - {result.TotalCount}");
-Console.BackgroundColor = ConsoleColor.DarkGreen;
+Console.ForegroundColor = ConsoleColor.Green;
 Console.WriteLine($"\n Success Count - {result.SuccessCount}");
-Console.BackgroundColor = ConsoleColor.Red;
+Console.ForegroundColor = ConsoleColor.DarkRed;
 Console.WriteLine($"\n Failed Count - {result.FailCount}");
 Console.ForegroundColor = ConsoleColor.Black;
 Console.ResetColor();
-Console.WriteLine("=====================================");
+Console.WriteLine("=======================");
 
-
-
-BatchJobTest.PrintLine();
-BatchJobTest.PrintRow("Key", "Error Description");
-BatchJobTest.PrintLine();
-foreach(var x in result.ErrorDetails)
+if (result.BatchReportHtml != null)
 {
-    BatchJobTest.PrintRow(x.TxnKey.ToString(), x.TxnErrorDescription);
-}
-BatchJobTest.PrintLine();
 
-Console.ReadLine();
+    var reportPath = Path.Combine(Directory.GetCurrentDirectory(), "BatchReport.html");
+
+    using (FileStream fs = new FileStream(reportPath, FileMode.Open))
+    {
+        using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
+        {
+            w.WriteLine(result.BatchReportHtml);
+        }
+    }
+
+    var uri = reportPath;
+    var psi = new System.Diagnostics.ProcessStartInfo();
+    psi.UseShellExecute = true;
+    psi.FileName = uri;
+    System.Diagnostics.Process.Start(psi);
+}

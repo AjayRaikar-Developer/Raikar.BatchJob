@@ -6,11 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Helper\" />
-  </ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="ShellProgressBar" Version="5.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="Helper\BatchTemplate.html">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
-﻿using Raikar.BatchJob.Models;
+﻿using Raikar.BatchJob.Helper;
+using Raikar.BatchJob.Models;
 using ShellProgressBar;
 
 namespace Raikar.BatchJob
@@ -54,7 +55,8 @@ namespace Raikar.BatchJob
         private List<KeyDataType> _batchKeyList = new List<KeyDataType>();
         private int _batchKeyListCount;
         private GetBatchKeyList<KeyDataType>? _getBatchKeyList;
-        BatchModeResponseDto<KeyDataType> _response = new BatchModeResponseDto<KeyDataType>();
+        private BatchModeResponseDto<KeyDataType> _response = new BatchModeResponseDto<KeyDataType>();
+        private bool _generateBatchReport;
 
         /// <summary>
         /// Progress bar options
@@ -74,25 +76,27 @@ namespace Raikar.BatchJob
         #endregion
 
         #region Constructors
-        public BatchJobService(List<KeyDataType> keyList, BatchTxnProcess<KeyDataType> methodToProcess, BatchProcessMode batchProcessMode)
+        public BatchJobService(List<KeyDataType> keyList, BatchTxnProcess<KeyDataType> methodToProcess, BatchProcessMode batchProcessMode, bool generateBatchReport = false)
         {
             _batchKeyList = keyList;
             BatchJobValidate();
             _methodToProcess = methodToProcess;
             _batchProcessMode = batchProcessMode;
             _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Service", options);
+            _generateBatchReport = generateBatchReport;
         }
 
-        public BatchJobService(List<KeyDataType> keyList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess,CancellationToken cancellationToken)
+        public BatchJobService(List<KeyDataType> keyList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess,CancellationToken cancellationToken, bool generateBatchReport = false)
         {
             _batchKeyList = keyList;
             BatchJobValidate();
             _asyncMethodToProcess = asyncMethodToProcess;
             _cancellationToken = cancellationToken;
             _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Async Service", options);
+            _generateBatchReport = generateBatchReport;
         }
 
-        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchTxnProcess<KeyDataType> methodToProcess, BatchProcessMode batchProcessMode)
+        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchTxnProcess<KeyDataType> methodToProcess, BatchProcessMode batchProcessMode, bool generateBatchReport = false)
         {
             _getBatchKeyList = getBatchList;
             _batchKeyList = _getBatchKeyList();
@@ -100,9 +104,10 @@ namespace Raikar.BatchJob
             _methodToProcess = methodToProcess;
             _batchProcessMode = batchProcessMode;
             _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Service", options);
+            _generateBatchReport = generateBatchReport;
         }
 
-        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, CancellationToken cancellationToken)
+        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, CancellationToken cancellationToken, bool generateBatchReport = false)
         {
             _getBatchKeyList = getBatchList;
             _batchKeyList = _getBatchKeyList();
@@ -110,13 +115,7 @@ namespace Raikar.BatchJob
             _asyncMethodToProcess = asyncMethodToProcess;
             _cancellationToken = cancellationToken;
             _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Async Service", options);
-        }
-        #endregion
-
-        #region Destructor
-        ~BatchJobService()
-        {
-            _progressBar.Dispose();
+            _generateBatchReport = generateBatchReport;
         }
         #endregion
 
@@ -163,6 +162,15 @@ namespace Raikar.BatchJob
             response.FailCount = batchResult.FailCount;
             response.ErrorDetails = batchResult.ErrorDetails;
 
+            if (_generateBatchReport)
+            {
+                var report = BatchReport<KeyDataType>.Generate(response);
+                if (report.Status)
+                {
+                    response.BatchReportHtml = report.HtmlReport;
+                }
+            }
+
             return response;
         }
 
@@ -186,6 +194,15 @@ namespace Raikar.BatchJob
             response.FailCount = batchResult.FailCount;
             response.ErrorDetails = batchResult.ErrorDetails;
 
+            if (_generateBatchReport)
+            {
+                var report = BatchReport<KeyDataType>.Generate(response);
+                if (report.Status)
+                {
+                    response.BatchReportHtml = report.HtmlReport;
+                }
+            }
+
             return response;
         }
 
@@ -195,6 +212,8 @@ namespace Raikar.BatchJob
             foreach (var key in batchKeyList)
             {
                 TxnResponseDto txnResponse = new TxnResponseDto();
+
+                //Loader testing
                 Thread.Sleep(1);
                 try
                 {
@@ -241,7 +260,7 @@ namespace Raikar.BatchJob
                     {
                         Error(key, txnResponse);
                     }
-
+                    _progressBar.Tick();
                 }
                 catch (Exception ex)
                 {
@@ -273,7 +292,7 @@ namespace Raikar.BatchJob
                     {
                         Error(key, txnResponse);
                     }
-
+                    _progressBar.Tick();
                 }
                 catch (Exception ex)
                 {
