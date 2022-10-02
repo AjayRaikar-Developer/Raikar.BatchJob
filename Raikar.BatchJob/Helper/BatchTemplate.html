@@ -1,27 +1,57 @@
 <!DOCTYPE html>
 
-<html> 
+<html>
 <head>
-<style>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
 
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
-</style>
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+        .button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 16px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+        }
+
+        .button1:hover {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <h1><center>Batch Job Report</center></h1>
+    <script>
+        function copyKeys() {
+
+            var lst = {FailedKeysList};
+
+            /* Copy text into clipboard */
+            navigator.clipboard.writeText
+                (lst);
+        }
+    </script>
+
+    <center><h1>Batch Job Report</h1></center>
 
     <table>
         <tr>
@@ -38,10 +68,12 @@ tr:nth-child(even) {
 
     <br />
 
-    <h4><center>Batch Message : {BatchMessage}</center></h4>
+    <center><h2>Batch Message : {BatchMessage}</h2></center>
 
     <br />
 
+    <center><button class="button button1" onclick="copyKeys()">Copy Failed Keys</button></center>
+    <br />
 
     <table>
         <tr>

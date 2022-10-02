@@ -1,5 +1,6 @@
 ﻿using Raikar.BatchJob.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,7 @@ namespace Raikar.BatchJob.Helper
                     body = reader.ReadToEnd();
                 }
 
+
                 body = body.Replace("{TotalCount}", batchResponse.TotalCount.ToString());
                 body = body.Replace("{SuccessCount}", batchResponse.SuccessCount.ToString());
                 body = body.Replace("{FailCount}", batchResponse.FailCount.ToString());
@@ -42,6 +44,10 @@ namespace Raikar.BatchJob.Helper
                     errorDetails += $"<tr><td>" + item.TxnKey + "</td><td>" + item.TxnDescription + "</td><td>" + item.TxnErrorDescription + "</td></tr>";
                 }
 
+                var failedKeyList = batchResponse.ErrorDetails.Select(x => x.TxnKey).ToList();
+                string strlist = "[" + string.Join(",", failedKeyList) + "]";
+
+                body = body.Replace("{FailedKeysList}", strlist);
                 body = body.Replace("{ErrorDetails}", errorDetails);
 
                 response.Status = true;
