@@ -1,16 +1,18 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Newtonsoft.Json;
 using Raikar.BatchJob.Test;
-using ShellProgressBar;
-using System.Diagnostics;
-using System.Drawing;
 using System.Text;
 
 Console.WriteLine("Raikar BatchJob Testing!\n");
 Console.WriteLine("Even or Odd Number Check - \n");
 
 BatchJobTest batchJob = new BatchJobTest();
+
+//Synchornys method call
 var result = batchJob.Test();
+
+//Async Method Call
+//var result = await batchJob.Test2();
 
 Console.WriteLine("Batch Job Response\n");
 Console.WriteLine(JsonConvert.SerializeObject(result));
@@ -23,7 +25,11 @@ ConsoleTable.PrintRow("Key", "Txn Description", "Error Description");
 ConsoleTable.PrintLine();
 foreach (var x in result.ErrorDetails)
 {
-    ConsoleTable.PrintRow(x.TxnKey.ToString(), x.TxnDescription, x.TxnErrorDescription);
+    string txnDescription = (x.TxnDescription == null)? "": x.TxnDescription;
+    string txnErrorDescription = (x.TxnErrorDescription == null)? "": x.TxnErrorDescription;
+
+
+    ConsoleTable.PrintRow(x.TxnKey.ToString(), txnDescription, txnErrorDescription);
     ConsoleTable.PrintLine();
 }
 

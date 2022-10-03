@@ -12,6 +12,16 @@
 - Add a progress bar printing console
 - Print result as table in Console
 - Copy Button in Report to get all failed Keys
+- Constructor refine 
+- Circuit Breaker
 
 ## Features Backlog 
 - Create a Nuget Package
+- A Subscriber method - Which polls results as in run time
+- Code comments
+- Github Package Intro 
+- Github Examples
+- Throtteling | Ratelimiting 
+
+## Eliminating 
+- Reciving Action Method as input - As this does not support return types

@@ -1,20 +1,31 @@
 ﻿using Raikar.BatchJob.Models;
-using System.Diagnostics;
 
 namespace Raikar.BatchJob.Test
 {
     public class BatchJobTest
     {
         public BatchJobService<int> _batchJobService;
+        public CancellationTokenSource _cancelToken = new CancellationTokenSource();
 
         public BatchJobTest()
         {
-            var limit = 50;
-            var numbers = Enumerable.Range(1, limit).ToList();
             BatchTxnProcess<int> process = new BatchTxnProcess<int>(TxnProcess);
             GetBatchKeyList<int> getKeyList = new GetBatchKeyList<int>(GetNumbers);
-            //_batchJobService = new BatchJobService<int>(numbers,process, Models.BatchProcessMode.Single);
-            _batchJobService = new BatchJobService<int>(getKeyList, process, Models.BatchProcessMode.Single,true);
+
+
+            BatchJobOptions options = new BatchJobOptions();
+            options.BatchProcessMode = BatchProcessMode.ParallelForEach;
+            options.GenerateBatchReport = true;
+            options.CircuitBreakerLimit = 10;
+
+            //Synchronous
+            _batchJobService = new BatchJobService<int>(getKeyList, process, options);
+
+            var token = _cancelToken.Token;
+
+            //Asynchronous
+            //BatchAsyncTxnProcess<int> asyncProcess = new BatchAsyncTxnProcess<int>(AsyncTxnProcess);
+            //_batchJobService = new BatchJobService<int>(getKeyList, asyncProcess, token, options);
         }
 
         public BatchResponseDto<int> Test()
@@ -22,16 +33,21 @@ namespace Raikar.BatchJob.Test
             return _batchJobService.ExecuteBatchJob();
         }
 
+        public async Task<BatchResponseDto<int>> Test2()
+        {
+            return await _batchJobService.ExecuteBatchJobAsync();
+        }
+
         public List<int> GetNumbers()
         {
-            var limit = 50;
+            var limit = 150;
             return Enumerable.Range(1, limit).ToList();
         }
 
 
-        public TxnResponseDto TxnProcess(int Key)
+        public TxnResponse TxnProcess(int Key)
         {
-            TxnResponseDto response = new TxnResponseDto();
+            TxnResponse response = new TxnResponse();
             response.TxnStatus = true;
 
             int evencheck = Key % 2;
@@ -45,5 +61,31 @@ namespace Raikar.BatchJob.Test
 
             return response;
         }
+
+        public async Task<TxnResponse> AsyncTxnProcess(int Key)
+        {
+            TxnResponse response = new TxnResponse();
+            response.TxnStatus = true;
+
+            int evencheck = Key % 2;
+
+            await Task.Delay(1);
+
+            if (evencheck != 0)
+            {
+                response.TxnStatus = false;
+                response.TxnDescription = "Even or Odd Check";
+                response.TxnErrorDescription = "It's an Odd Number";
+            }
+
+            //Task Cancellation Testing
+            //if(Key == 49)
+            //{
+            //    _cancelToken.Cancel();
+            //}
+
+            return response;
+        }
+
     }
 }

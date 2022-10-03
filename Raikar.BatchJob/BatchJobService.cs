@@ -1,6 +1,7 @@
 ﻿using Raikar.BatchJob.Helper;
 using Raikar.BatchJob.Models;
 using ShellProgressBar;
+using System.Threading.Tasks;
 
 namespace Raikar.BatchJob
 {
@@ -17,7 +18,7 @@ namespace Raikar.BatchJob
     /// <typeparam name="KeyDataType"></typeparam>
     /// <param name="Key"></param>
     /// <returns></returns>
-    public delegate TxnResponseDto BatchTxnProcess<KeyDataType>(KeyDataType Key);
+    public delegate TxnResponse BatchTxnProcess<KeyDataType>(KeyDataType Key);
 
     /// <summary>
     /// It calls the batch job transaction async method which manages key wise processing
@@ -25,7 +26,7 @@ namespace Raikar.BatchJob
     /// <typeparam name="KeyDataType"></typeparam>
     /// <param name="Key"></param>
     /// <returns></returns>
-    public delegate Task<TxnResponseDto> BatchAsyncTxnProcess<KeyDataType>(KeyDataType Key);
+    public delegate Task<TxnResponse> BatchAsyncTxnProcess<KeyDataType>(KeyDataType Key);
     
     /// <summary>
     /// Generic Batch Job Main Methods
@@ -57,6 +58,7 @@ namespace Raikar.BatchJob
         private GetBatchKeyList<KeyDataType>? _getBatchKeyList;
         private BatchModeResponseDto<KeyDataType> _response = new BatchModeResponseDto<KeyDataType>();
         private bool _generateBatchReport;
+        private int _circuitBreakerLimit;
 
         /// <summary>
         /// Progress bar options
@@ -76,55 +78,67 @@ namespace Raikar.BatchJob
         #endregion
 
         #region Constructors
-        public BatchJobService(List<KeyDataType> keyList, BatchTxnProcess<KeyDataType> methodToProcess, BatchProcessMode batchProcessMode, bool generateBatchReport = false)
+        public BatchJobService(List<KeyDataType> keyList, BatchTxnProcess<KeyDataType> methodToProcess, BatchProcessMode batchProcessMode)
         {
             _batchKeyList = keyList;
             BatchJobValidate();
             _methodToProcess = methodToProcess;
             _batchProcessMode = batchProcessMode;
             _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Service", options);
-            _generateBatchReport = generateBatchReport;
         }
 
-        public BatchJobService(List<KeyDataType> keyList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess,CancellationToken cancellationToken, bool generateBatchReport = false)
+        /// <summary>
+        /// Batch job service with Options
+        /// </summary>
+        /// <param name="keyList">Pass the list of keys to process</param>
+        /// <param name="methodToProcess">Its a delegate pass the transaction method to be called for processing all keys</param>
+        /// <param name="batchOptions"></param>
+        public BatchJobService(List<KeyDataType> keyList, BatchTxnProcess<KeyDataType> methodToProcess, BatchJobOptions batchJobOptions)
+        {
+            _batchKeyList = keyList;
+             BatchJobValidate();
+            _methodToProcess = methodToProcess;
+            _batchProcessMode = batchJobOptions.BatchProcessMode;
+            _generateBatchReport = batchJobOptions.GenerateBatchReport;
+            _circuitBreakerLimit = batchJobOptions.CircuitBreakerLimit;
+            _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
+        }        
+
+        public BatchJobService(List<KeyDataType> keyList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, CancellationToken cancellationToken, BatchJobOptions batchJobOptions)
         {
             _batchKeyList = keyList;
             BatchJobValidate();
             _asyncMethodToProcess = asyncMethodToProcess;
             _cancellationToken = cancellationToken;
-            _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Async Service", options);
-            _generateBatchReport = generateBatchReport;
+            _generateBatchReport = batchJobOptions.GenerateBatchReport;
+            _circuitBreakerLimit = batchJobOptions.CircuitBreakerLimit;
+            _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }
 
-        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchTxnProcess<KeyDataType> methodToProcess, BatchProcessMode batchProcessMode, bool generateBatchReport = false)
+        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchTxnProcess<KeyDataType> methodToProcess, BatchJobOptions batchJobOptions)
         {
             _getBatchKeyList = getBatchList;
             _batchKeyList = _getBatchKeyList();
              BatchJobValidate();
             _methodToProcess = methodToProcess;
-            _batchProcessMode = batchProcessMode;
-            _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Service", options);
-            _generateBatchReport = generateBatchReport;
+            _batchProcessMode = batchJobOptions.BatchProcessMode;
+            _generateBatchReport = batchJobOptions.GenerateBatchReport;
+            _circuitBreakerLimit = batchJobOptions.CircuitBreakerLimit;
+            _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }
 
-        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, CancellationToken cancellationToken, bool generateBatchReport = false)
+        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, CancellationToken cancellationToken, BatchJobOptions batchJobOptions)
         {
             _getBatchKeyList = getBatchList;
             _batchKeyList = _getBatchKeyList();
              BatchJobValidate();
             _asyncMethodToProcess = asyncMethodToProcess;
             _cancellationToken = cancellationToken;
-            _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Async Service", options);
-            _generateBatchReport = generateBatchReport;
+            _generateBatchReport = batchJobOptions.GenerateBatchReport;
+            _circuitBreakerLimit = batchJobOptions.CircuitBreakerLimit;
+            _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }
         #endregion
-
-        public void GetBatchKeyList(GetBatchKeyList<KeyDataType> getBatchList)
-        {
-            _getBatchKeyList = getBatchList;
-            _batchKeyList = _getBatchKeyList();
-            BatchJobValidate();
-        }       
 
         /// <summary>
         /// Synchoronous Batch Job Execution Method
@@ -142,12 +156,12 @@ namespace Raikar.BatchJob
 
             switch (_batchProcessMode)
             {
-                case BatchProcessMode.Single:
+                case BatchProcessMode.Foreach:
                     batchProcessFunc = new BatchProcessFunc<KeyDataType>(ForEach);
                     batchResult = batchProcessFunc(_batchKeyList);
                     break;
 
-                case BatchProcessMode.Parallel:
+                case BatchProcessMode.ParallelForEach:
                     batchProcessFunc = new BatchProcessFunc<KeyDataType>(ParallelForEach);
                     batchResult = batchProcessFunc(_batchKeyList);
                     break;
@@ -211,7 +225,7 @@ namespace Raikar.BatchJob
         {
             foreach (var key in batchKeyList)
             {
-                TxnResponseDto txnResponse = new TxnResponseDto();
+                TxnResponse txnResponse = new TxnResponse();
 
                 //Loader testing
                 Thread.Sleep(1);
@@ -231,6 +245,11 @@ namespace Raikar.BatchJob
                     _progressBar.Tick();
 
                 }
+                catch (TaskCanceledException taskCancelException)
+                {
+                    Error(key, taskCancelException);
+                    break;
+                }
                 catch (Exception ex)
                 {
                     Error(key, ex);
@@ -243,9 +262,9 @@ namespace Raikar.BatchJob
 
         private BatchModeResponseDto<KeyDataType> ParallelForEach(List<KeyDataType> batchKeyList)
         {  
-            Parallel.ForEach(batchKeyList, key =>
+            Parallel.ForEach(batchKeyList, (key, state) =>
             {
-                TxnResponseDto txnResponse = new TxnResponseDto();
+                TxnResponse txnResponse = new TxnResponse();
 
                 try
                 {
@@ -262,6 +281,12 @@ namespace Raikar.BatchJob
                     }
                     _progressBar.Tick();
                 }
+                catch (TaskCanceledException taskCancelException)
+                {
+                    Error(key, taskCancelException);
+                    state.Break();
+                    return;
+                }
                 catch (Exception ex)
                 {
                     Error(key, ex);
@@ -272,12 +297,15 @@ namespace Raikar.BatchJob
         }
 
         private async Task<BatchModeResponseDto<KeyDataType>> ParallelForEachAsync(List<KeyDataType> batchKeyList, CancellationToken cancellationToken)
-        {  
+        {
             await Parallel.ForEachAsync(batchKeyList, cancellationToken, async (key, cancellationToken) =>
             {
-                TxnResponseDto txnResponse = new TxnResponseDto();
+                TxnResponse txnResponse = new TxnResponse();
 
-                cancellationToken.ThrowIfCancellationRequested();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
 
                 try
                 {
@@ -293,6 +321,11 @@ namespace Raikar.BatchJob
                         Error(key, txnResponse);
                     }
                     _progressBar.Tick();
+                }
+                catch (TaskCanceledException taskCancelException)
+                {
+                    Error(key, taskCancelException);
+                    return;                    
                 }
                 catch (Exception ex)
                 {
@@ -318,7 +351,7 @@ namespace Raikar.BatchJob
             _response.SuccessCount++;
         }
 
-        private void Error(KeyDataType key, TxnResponseDto txnResponse)
+        private void Error(KeyDataType key, TxnResponse txnResponse)
         {
             _response.FailCount++;
             _response.ErrorDetails.Add(new BatchErrorDetailsDto<KeyDataType>()
@@ -327,6 +360,11 @@ namespace Raikar.BatchJob
                 TxnDescription = txnResponse.TxnDescription,
                 TxnErrorDescription = txnResponse.TxnErrorDescription
             });
+
+            if(_response.FailCount >= _circuitBreakerLimit)
+            {
+                throw new TaskCanceledException("Circuit breaker limit reached cancelling the batch");
+            }
         }
 
         private void Error(KeyDataType key, Exception ex)
