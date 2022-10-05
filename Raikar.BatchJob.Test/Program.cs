@@ -1,18 +1,38 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Newtonsoft.Json;
+using Raikar.BatchJob.Models;
 using Raikar.BatchJob.Test;
 using System.Text;
 
 Console.WriteLine("Raikar BatchJob Testing!\n");
 Console.WriteLine("Even or Odd Number Check - \n");
-
+BatchResponseDto<int> result = new BatchResponseDto<int>();
 BatchJobTest batchJob = new BatchJobTest();
 
-//Synchornys method call
-var result = batchJob.Test();
+//Synchronous methods to call
+result = batchJob.SyncForEachBatch();
+//result = batchJob.SyncForEachBatch_WithGetKeyMethod();
+//result = batchJob.SyncForEachBatch_WithOptions();
+//result = batchJob.SyncForEachBatch_WithSubscriberMethod();
 
-//Async Method Call
-//var result = await batchJob.Test2();
+////Synchronous Parallel methods to call
+//result = batchJob.SyncForEachParallelBatch();
+//result = batchJob.SyncForEachParallelBatch_WithGetKeyMethod();
+//result = batchJob.SyncForEachParallelBatch_WithOptions();
+//result = batchJob.SyncForEachParallelBatch_WithSubscriberMethod();
+
+////Async methods to call
+//result = await batchJob.ForEachParallelAsyncBatch();
+//result = await batchJob.ForEachParallelAsyncBatch_WithGetKeyMethod();
+//result = await batchJob.ForEachParallelAsyncBatch_WithOptions();
+//result = await batchJob.ForEachParallelAsyncBatch_WithSubscriberMethod();
+
+
+////Use Cases methods to call
+//result = batchJob.LoaderTest();
+//result = batchJob.CircuitBreakerTest();
+//result = await batchJob.ForEachParallelAsyncBatch_TaskCancel();
+
 
 Console.WriteLine("Batch Job Response\n");
 Console.WriteLine(JsonConvert.SerializeObject(result));

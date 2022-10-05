@@ -64,7 +64,7 @@ namespace Raikar.BatchJob
         private GetBatchKeyList<KeyDataType>? _getBatchKeyList;
         private BatchModeResponseDto<KeyDataType> _response = new BatchModeResponseDto<KeyDataType>();
         private bool _generateBatchReport;
-        private int _circuitBreakerLimit;
+        private int _circuitBreakerLimit = 100;
         private bool _circuitBreakerLimitHit = false;
         private bool _eventSubscribed = false;
         private SubscribeBatchEventsFunc<KeyDataType>? _subscribeBatchEvents = null;
@@ -94,6 +94,16 @@ namespace Raikar.BatchJob
             _methodToProcess = methodToProcess;
             _batchProcessMode = batchProcessMode;
             _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Service", options);
+        }
+
+        public BatchJobService(List<KeyDataType> keyList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess,
+            CancellationToken cancellationToken)
+        {
+            _batchKeyList = keyList;
+            BatchJobValidate();
+            _asyncMethodToProcess = asyncMethodToProcess;
+            _cancellationToken = cancellationToken;
+            _progressBar = new ProgressBar(_batchKeyListCount, "Async Batch Job Service", options);
         }
 
         /// <summary>
@@ -270,8 +280,6 @@ namespace Raikar.BatchJob
             {
                 TxnResponse txnResponse = new TxnResponse();
 
-                //Loader testing
-                Thread.Sleep(1);
                 try
                 {
                     if (_methodToProcess != null)
@@ -309,7 +317,7 @@ namespace Raikar.BatchJob
 
         private BatchModeResponseDto<KeyDataType> ParallelForEach(List<KeyDataType> batchKeyList)
         {  
-            Parallel.ForEach(batchKeyList, (key, state) =>
+           var result = Parallel.ForEach(batchKeyList, (key, state) =>
             {
                 TxnResponse txnResponse = new TxnResponse();
 
@@ -404,46 +412,58 @@ namespace Raikar.BatchJob
 
         private void Success()
         {
-            _response.SuccessCount++;
+            lock (this)
+            {
+                _response.SuccessCount++;
+            }
         }
 
         private void Error(KeyDataType key, TxnResponse txnResponse)
         {
-            _response.FailCount++;
-            _response.ErrorDetails.Add(new BatchErrorDetailsDto<KeyDataType>()
+            lock (this)
             {
-                TxnKey = key,
-                TxnDescription = txnResponse.TxnDescription,
-                TxnErrorDescription = txnResponse.TxnErrorDescription
-            });
+                _response.FailCount++;
+                _response.ErrorDetails.Add(new BatchErrorDetailsDto<KeyDataType>()
+                {
+                    TxnKey = key,
+                    TxnDescription = txnResponse.TxnDescription,
+                    TxnErrorDescription = txnResponse.TxnErrorDescription
+                });
 
-            if(_response.FailCount >= _circuitBreakerLimit)
-            {
-                _circuitBreakerLimitHit = true;
-                throw new TaskCanceledException("Circuit breaker limit reached cancelling the batch");
+                if (_response.FailCount >= _circuitBreakerLimit)
+                {
+                    _circuitBreakerLimitHit = true;
+                    throw new TaskCanceledException("Circuit breaker limit reached cancelling the batch");
+                }
             }
         }
 
         private void Error(KeyDataType key, Exception ex)
         {
-            _response.FailCount++;
-            _response.ErrorDetails.Add(new BatchErrorDetailsDto<KeyDataType>()
+            lock (this)
             {
-                TxnKey = key,
-                TxnDescription = (_circuitBreakerLimitHit) ?  "Circuit Breaker" : "Processing method call failed with an exception",
-                TxnErrorDescription = (_circuitBreakerLimitHit)? ex.Message : ex.ToString()
-            });
+                _response.FailCount++;
+                _response.ErrorDetails.Add(new BatchErrorDetailsDto<KeyDataType>()
+                {
+                    TxnKey = key,
+                    TxnDescription = (_circuitBreakerLimitHit) ? "Circuit Breaker" : "Processing method call failed with an exception",
+                    TxnErrorDescription = (_circuitBreakerLimitHit) ? ex.Message : ex.ToString()
+                });
+            }
         }
 
         private void PublishEvents()
         {
-            if (_subscribeBatchEvents != null && _eventSubscribed)
+            lock (this)
             {
-                string response = JsonSerializer.Serialize(_response);
-                var txnEvent = JsonSerializer.Deserialize<BatchTxnEvent<KeyDataType>>(response);
+                if (_subscribeBatchEvents != null && _eventSubscribed)
+                {
+                    string response = JsonSerializer.Serialize(_response);
+                    var txnEvent = JsonSerializer.Deserialize<BatchTxnEvent<KeyDataType>>(response);
 
-                if(txnEvent != null)
-                    _subscribeBatchEvents(txnEvent);
+                    if (txnEvent != null)
+                        _subscribeBatchEvents(txnEvent);
+                }
             }
         }
 
