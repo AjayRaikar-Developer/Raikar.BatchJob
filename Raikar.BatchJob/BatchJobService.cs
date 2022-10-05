@@ -1,6 +1,9 @@
 ﻿using Raikar.BatchJob.Helper;
 using Raikar.BatchJob.Models;
 using ShellProgressBar;
+using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Raikar.BatchJob
@@ -46,6 +49,9 @@ namespace Raikar.BatchJob
     public delegate Task<BatchModeResponseDto<KeyDataType>> BatchProcessAsyncFunc<KeyDataType>(List<KeyDataType> batchKeyList, CancellationToken cancellationToken);
     
     
+    public delegate void SubscribeBatchEventsFunc<KeyDataType>(BatchTxnEvent<KeyDataType> batchTxnEvents);
+    
+    
     public class BatchJobService<KeyDataType>
     {
         #region Private Properties
@@ -59,6 +65,9 @@ namespace Raikar.BatchJob
         private BatchModeResponseDto<KeyDataType> _response = new BatchModeResponseDto<KeyDataType>();
         private bool _generateBatchReport;
         private int _circuitBreakerLimit;
+        private bool _circuitBreakerLimitHit = false;
+        private bool _eventSubscribed = false;
+        private SubscribeBatchEventsFunc<KeyDataType>? _subscribeBatchEvents = null;
 
         /// <summary>
         /// Progress bar options
@@ -104,7 +113,8 @@ namespace Raikar.BatchJob
             _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }        
 
-        public BatchJobService(List<KeyDataType> keyList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, CancellationToken cancellationToken, BatchJobOptions batchJobOptions)
+        public BatchJobService(List<KeyDataType> keyList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, 
+            CancellationToken cancellationToken, BatchJobOptions batchJobOptions)
         {
             _batchKeyList = keyList;
             BatchJobValidate();
@@ -115,7 +125,8 @@ namespace Raikar.BatchJob
             _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }
 
-        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchTxnProcess<KeyDataType> methodToProcess, BatchJobOptions batchJobOptions)
+        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchTxnProcess<KeyDataType> methodToProcess, 
+            BatchJobOptions batchJobOptions)
         {
             _getBatchKeyList = getBatchList;
             _batchKeyList = _getBatchKeyList();
@@ -127,7 +138,8 @@ namespace Raikar.BatchJob
             _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }
 
-        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, CancellationToken cancellationToken, BatchJobOptions batchJobOptions)
+        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, 
+            CancellationToken cancellationToken, BatchJobOptions batchJobOptions)
         {
             _getBatchKeyList = getBatchList;
             _batchKeyList = _getBatchKeyList();
@@ -138,6 +150,37 @@ namespace Raikar.BatchJob
             _circuitBreakerLimit = batchJobOptions.CircuitBreakerLimit;
             _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }
+
+        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList, BatchTxnProcess<KeyDataType> methodToProcess, 
+            SubscribeBatchEventsFunc<KeyDataType> subscribeEvents, BatchJobOptions batchJobOptions)
+        {
+            _getBatchKeyList = getBatchList;
+            _batchKeyList = _getBatchKeyList();
+            BatchJobValidate();
+            _methodToProcess = methodToProcess;
+            _batchProcessMode = batchJobOptions.BatchProcessMode;
+            _generateBatchReport = batchJobOptions.GenerateBatchReport;
+            _circuitBreakerLimit = batchJobOptions.CircuitBreakerLimit;
+            _eventSubscribed = true;
+            _subscribeBatchEvents = subscribeEvents;
+            _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
+        }
+
+        public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, 
+            SubscribeBatchEventsFunc<KeyDataType> subscribeEvents, CancellationToken cancellationToken, BatchJobOptions batchJobOptions)
+        {
+            _getBatchKeyList = getBatchList;
+            _batchKeyList = _getBatchKeyList();
+            BatchJobValidate();
+            _asyncMethodToProcess = asyncMethodToProcess;
+            _cancellationToken = cancellationToken;
+            _generateBatchReport = batchJobOptions.GenerateBatchReport;
+            _circuitBreakerLimit = batchJobOptions.CircuitBreakerLimit;
+            _eventSubscribed = true;
+            _subscribeBatchEvents = subscribeEvents;
+            _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
+        }
+
         #endregion
 
         /// <summary>
@@ -242,17 +285,21 @@ namespace Raikar.BatchJob
                     {
                         Error(key, txnResponse);
                     }
-                    _progressBar.Tick();
 
+                    PublishEvents();
+
+                    _progressBar.Tick();
                 }
                 catch (TaskCanceledException taskCancelException)
                 {
                     Error(key, taskCancelException);
+                    PublishEvents();
                     break;
                 }
                 catch (Exception ex)
                 {
                     Error(key, ex);
+                    PublishEvents();
                 }
             }
 
@@ -279,17 +326,22 @@ namespace Raikar.BatchJob
                     {
                         Error(key, txnResponse);
                     }
+
+                    PublishEvents();
+
                     _progressBar.Tick();
                 }
                 catch (TaskCanceledException taskCancelException)
                 {
                     Error(key, taskCancelException);
+                    PublishEvents();
                     state.Break();
                     return;
                 }
                 catch (Exception ex)
                 {
                     Error(key, ex);
+                    PublishEvents();
                 }
             });
 
@@ -320,16 +372,20 @@ namespace Raikar.BatchJob
                     {
                         Error(key, txnResponse);
                     }
+
+                    PublishEvents();
                     _progressBar.Tick();
                 }
                 catch (TaskCanceledException taskCancelException)
                 {
                     Error(key, taskCancelException);
+                    PublishEvents();
                     return;                    
                 }
                 catch (Exception ex)
                 {
                     Error(key, ex);
+                    PublishEvents();
                 }
             });
 
@@ -363,6 +419,7 @@ namespace Raikar.BatchJob
 
             if(_response.FailCount >= _circuitBreakerLimit)
             {
+                _circuitBreakerLimitHit = true;
                 throw new TaskCanceledException("Circuit breaker limit reached cancelling the batch");
             }
         }
@@ -373,10 +430,23 @@ namespace Raikar.BatchJob
             _response.ErrorDetails.Add(new BatchErrorDetailsDto<KeyDataType>()
             {
                 TxnKey = key,
-                TxnDescription = "Processing method call failed with an exception",
-                TxnErrorDescription = ex.ToString()
+                TxnDescription = (_circuitBreakerLimitHit) ?  "Circuit Breaker" : "Processing method call failed with an exception",
+                TxnErrorDescription = (_circuitBreakerLimitHit)? ex.Message : ex.ToString()
             });
         }
+
+        private void PublishEvents()
+        {
+            if (_subscribeBatchEvents != null && _eventSubscribed)
+            {
+                string response = JsonSerializer.Serialize(_response);
+                var txnEvent = JsonSerializer.Deserialize<BatchTxnEvent<KeyDataType>>(response);
+
+                if(txnEvent != null)
+                    _subscribeBatchEvents(txnEvent);
+            }
+        }
+
         #endregion
     }
 }

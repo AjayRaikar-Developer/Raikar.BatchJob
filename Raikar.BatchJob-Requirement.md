@@ -14,10 +14,10 @@
 - Copy Button in Report to get all failed Keys
 - Constructor refine 
 - Circuit Breaker
+- A Subscriber method - Which polls results as in run time
 
 ## Features Backlog 
 - Create a Nuget Package
-- A Subscriber method - Which polls results as in run time
 - Code comments
 - Github Package Intro 
 - Github Examples

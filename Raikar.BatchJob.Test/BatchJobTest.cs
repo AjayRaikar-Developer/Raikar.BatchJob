@@ -1,4 +1,5 @@
-﻿using Raikar.BatchJob.Models;
+﻿using Newtonsoft.Json;
+using Raikar.BatchJob.Models;
 
 namespace Raikar.BatchJob.Test
 {
@@ -11,17 +12,20 @@ namespace Raikar.BatchJob.Test
         {
             BatchTxnProcess<int> process = new BatchTxnProcess<int>(TxnProcess);
             GetBatchKeyList<int> getKeyList = new GetBatchKeyList<int>(GetNumbers);
+            SubscribeBatchEventsFunc<int> eventFunc = new SubscribeBatchEventsFunc<int>(BatchSubscriber);
 
 
             BatchJobOptions options = new BatchJobOptions();
-            options.BatchProcessMode = BatchProcessMode.ParallelForEach;
+            options.BatchProcessMode = BatchProcessMode.Foreach;
             options.GenerateBatchReport = true;
-            options.CircuitBreakerLimit = 10;
+            options.CircuitBreakerLimit = 100;
 
             //Synchronous
-            _batchJobService = new BatchJobService<int>(getKeyList, process, options);
+            //_batchJobService = new BatchJobService<int>(getKeyList, process, options);
+            
+            _batchJobService = new BatchJobService<int>(getKeyList, process, eventFunc,options);
 
-            var token = _cancelToken.Token;
+            //var token = _cancelToken.Token;
 
             //Asynchronous
             //BatchAsyncTxnProcess<int> asyncProcess = new BatchAsyncTxnProcess<int>(AsyncTxnProcess);
@@ -40,7 +44,7 @@ namespace Raikar.BatchJob.Test
 
         public List<int> GetNumbers()
         {
-            var limit = 150;
+            var limit = 50;
             return Enumerable.Range(1, limit).ToList();
         }
 
@@ -85,6 +89,12 @@ namespace Raikar.BatchJob.Test
             //}
 
             return response;
+        }
+
+
+        public void BatchSubscriber(BatchTxnEvent<int> batchEvent)
+        {
+            //Console.WriteLine(JsonConvert.SerializeObject(batchEvent));
         }
 
     }
