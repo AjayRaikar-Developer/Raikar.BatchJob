@@ -198,9 +198,9 @@ namespace Raikar.BatchJob
         /// </summary>
         /// <param name="batchRequest"></param>
         /// <returns></returns>
-        public BatchResponseDto<KeyDataType> ExecuteBatchJob()
+        public BatchResponse<KeyDataType> ExecuteBatchJob()
         {
-            BatchResponseDto<KeyDataType> response = new BatchResponseDto<KeyDataType>();
+            BatchResponse<KeyDataType> response = new BatchResponse<KeyDataType>();
             BatchProcessFunc<KeyDataType> batchProcessFunc;
             BatchModeResponseDto<KeyDataType> batchResult = new BatchModeResponseDto<KeyDataType>();
             response.TotalCount = _batchKeyListCount;
@@ -246,9 +246,9 @@ namespace Raikar.BatchJob
         /// </summary>
         /// <param name="batchRequest"></param>
         /// <returns></returns>
-        public async Task<BatchResponseDto<KeyDataType>> ExecuteBatchJobAsync()
+        public async Task<BatchResponse<KeyDataType>> ExecuteBatchJobAsync()
         {
-            BatchResponseDto<KeyDataType> response = new BatchResponseDto<KeyDataType>();
+            BatchResponse<KeyDataType> response = new BatchResponse<KeyDataType>();
             BatchProcessAsyncFunc<KeyDataType> batchProcessAsyncFunc = new BatchProcessAsyncFunc<KeyDataType>(ParallelForEachAsync);
             BatchModeResponseDto<KeyDataType> batchResult = new BatchModeResponseDto<KeyDataType>();
             response.TotalCount = _batchKeyListCount;

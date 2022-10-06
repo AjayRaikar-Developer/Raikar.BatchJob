@@ -22,6 +22,7 @@
 - Github Package Intro 
 - Github Examples
 - Throtteling | Ratelimiting 
+- BatchName handle in response also compare other batch options
 
 ## Eliminating 
 - Reciving Action Method as input - As this does not support return types

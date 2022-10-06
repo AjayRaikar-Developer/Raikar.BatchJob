@@ -23,19 +23,19 @@ namespace Raikar.BatchJob.Test
         }
 
         #region All Constructor Functions 
-        public BatchResponseDto<int> SyncForEachBatch()
+        public BatchResponse<int> SyncForEachBatch()
         {            
             _batchJobService = new BatchJobService<int>(_keyList, _process, BatchProcessMode.Foreach);
             return _batchJobService.ExecuteBatchJob();
         }
 
-        public BatchResponseDto<int> SyncForEachParallelBatch()
+        public BatchResponse<int> SyncForEachParallelBatch()
         {
             _batchJobService = new BatchJobService<int>(_keyList, _process, BatchProcessMode.ParallelForEach);
             return _batchJobService.ExecuteBatchJob();
         }
 
-        public async Task<BatchResponseDto<int>> ForEachParallelAsyncBatch()
+        public async Task<BatchResponse<int>> ForEachParallelAsyncBatch()
         {
             var token = _cancelToken.Token;          
             _batchJobService = new BatchJobService<int>(_keyList, _asyncProcess, token);
@@ -43,7 +43,7 @@ namespace Raikar.BatchJob.Test
             return await _batchJobService.ExecuteBatchJobAsync();
         }
 
-        public BatchResponseDto<int> SyncForEachBatch_WithOptions()
+        public BatchResponse<int> SyncForEachBatch_WithOptions()
         {
             BatchJobOptions options = new BatchJobOptions()
             {
@@ -57,7 +57,7 @@ namespace Raikar.BatchJob.Test
             return _batchJobService.ExecuteBatchJob();
         }
 
-        public BatchResponseDto<int> SyncForEachParallelBatch_WithOptions()
+        public BatchResponse<int> SyncForEachParallelBatch_WithOptions()
         {
             BatchJobOptions options = new BatchJobOptions()
             {
@@ -71,7 +71,7 @@ namespace Raikar.BatchJob.Test
             return _batchJobService.ExecuteBatchJob();
         }
 
-        public async Task<BatchResponseDto<int>> ForEachParallelAsyncBatch_WithOptions()
+        public async Task<BatchResponse<int>> ForEachParallelAsyncBatch_WithOptions()
         {
             var token = _cancelToken.Token;
             BatchJobOptions options = new BatchJobOptions()
@@ -86,7 +86,7 @@ namespace Raikar.BatchJob.Test
             return await _batchJobService.ExecuteBatchJobAsync();
         }       
 
-        public BatchResponseDto<int> SyncForEachBatch_WithGetKeyMethod()
+        public BatchResponse<int> SyncForEachBatch_WithGetKeyMethod()
         {
             BatchJobOptions options = new BatchJobOptions()
             {
@@ -100,7 +100,7 @@ namespace Raikar.BatchJob.Test
             return _batchJobService.ExecuteBatchJob();
         }
 
-        public BatchResponseDto<int> SyncForEachParallelBatch_WithGetKeyMethod()
+        public BatchResponse<int> SyncForEachParallelBatch_WithGetKeyMethod()
         {
             BatchJobOptions options = new BatchJobOptions()
             {
@@ -113,7 +113,7 @@ namespace Raikar.BatchJob.Test
             return _batchJobService.ExecuteBatchJob();
         }
 
-        public async Task<BatchResponseDto<int>> ForEachParallelAsyncBatch_WithGetKeyMethod()
+        public async Task<BatchResponse<int>> ForEachParallelAsyncBatch_WithGetKeyMethod()
         {
             var token = _cancelToken.Token;
             BatchJobOptions options = new BatchJobOptions()
@@ -128,7 +128,7 @@ namespace Raikar.BatchJob.Test
             return await _batchJobService.ExecuteBatchJobAsync();
         }
 
-        public BatchResponseDto<int> SyncForEachBatch_WithSubscriberMethod()
+        public BatchResponse<int> SyncForEachBatch_WithSubscriberMethod()
         {
             BatchJobOptions options = new BatchJobOptions()
             {
@@ -143,7 +143,7 @@ namespace Raikar.BatchJob.Test
             return _batchJobService.ExecuteBatchJob();
         }
 
-        public BatchResponseDto<int> SyncForEachParallelBatch_WithSubscriberMethod()
+        public BatchResponse<int> SyncForEachParallelBatch_WithSubscriberMethod()
         {
             BatchJobOptions options = new BatchJobOptions()
             {
@@ -158,7 +158,7 @@ namespace Raikar.BatchJob.Test
             return _batchJobService.ExecuteBatchJob();
         }
 
-        public async Task<BatchResponseDto<int>> ForEachParallelAsyncBatch_WithSubscriberMethod()
+        public async Task<BatchResponse<int>> ForEachParallelAsyncBatch_WithSubscriberMethod()
         {
             var token = _cancelToken.Token;
             
@@ -179,14 +179,14 @@ namespace Raikar.BatchJob.Test
 
         #region Use Cases
 
-        public BatchResponseDto<int> LoaderTest()
+        public BatchResponse<int> LoaderTest()
         {
             _process = new BatchTxnProcess<int>(TxnProcessLoader);
             _batchJobService = new BatchJobService<int>(_keyList, _process, BatchProcessMode.Foreach);
             return _batchJobService.ExecuteBatchJob();
         }
 
-        public BatchResponseDto<int> CircuitBreakerTest()
+        public BatchResponse<int> CircuitBreakerTest()
         {
             BatchJobOptions options = new BatchJobOptions()
             {
@@ -200,7 +200,7 @@ namespace Raikar.BatchJob.Test
             return _batchJobService.ExecuteBatchJob();
         }
 
-        public async Task<BatchResponseDto<int>> ForEachParallelAsyncBatch_TaskCancel()
+        public async Task<BatchResponse<int>> ForEachParallelAsyncBatch_TaskCancel()
         {
             try
             {
@@ -220,7 +220,7 @@ namespace Raikar.BatchJob.Test
             }
             catch
             {
-                return new BatchResponseDto<int>() { BatchReportHtml = "<h1>Batch was cancelled</h1>"};
+                return new BatchResponse<int>() { BatchReportHtml = "<h1>Batch was cancelled</h1>"};
             }
         }
         #endregion

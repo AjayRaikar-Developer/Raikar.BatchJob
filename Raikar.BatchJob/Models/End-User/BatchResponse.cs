@@ -1,8 +1,8 @@
 ﻿namespace Raikar.BatchJob.Models
 {
-    public class BatchResponseDto<T>
+    public class BatchResponse<T>
     {
-        public BatchResponseDto()
+        public BatchResponse()
         {
             ErrorDetails = new List<BatchErrorDetailsDto<T>>();
         }

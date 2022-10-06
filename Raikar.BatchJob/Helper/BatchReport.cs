@@ -10,7 +10,7 @@ namespace Raikar.BatchJob.Helper
 {
     internal static class BatchReport<KeyDataType>
     {
-        public static BatchReportResponseDto Generate(BatchResponseDto<KeyDataType> batchResponse)
+        public static BatchReportResponseDto Generate(BatchResponse<KeyDataType> batchResponse)
         {
             BatchReportResponseDto response = new BatchReportResponseDto();
             try

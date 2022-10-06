@@ -6,7 +6,7 @@ using System.Text;
 
 Console.WriteLine("Raikar BatchJob Testing!\n");
 Console.WriteLine("Even or Odd Number Check - \n");
-BatchResponseDto<int> result = new BatchResponseDto<int>();
+BatchResponse<int> result = new BatchResponse<int>();
 BatchJobTest batchJob = new BatchJobTest();
 
 //Synchronous methods to call
