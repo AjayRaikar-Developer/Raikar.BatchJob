@@ -17,7 +17,7 @@ It has 3 modes of operation -
 
 # Usage  
 ## Dynamic Key List Synchronous Example 
-```
+```csharp
 //Key List
 List<int> _keyList = Enumerable.Range(1, 50).ToList();
 
@@ -65,7 +65,7 @@ BatchTxnProcess<int> _process = new BatchTxnProcess<int>(TxnProcess);
 
 
 ## Dynamic Key List Asynchronous Example 
-```
+```csharp
 //Key List
 List<int> _keyList = Enumerable.Range(1, 50).ToList();
 
@@ -114,7 +114,7 @@ public async Task<BatchResponse<int>> ForEachParallelAsyncBatch()
 - **CircuitBreakerLimit** - It's the limit where the batch will break when error count matchs the limit configured.
 - **BatchName** - Configure the batch with a name.
 
-```
+```csharp
 public BatchResponse<int> SyncForEachBatch_WithOptions()
 {
     BatchJobOptions options = new BatchJobOptions()
