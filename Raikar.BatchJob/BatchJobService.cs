@@ -48,7 +48,11 @@ namespace Raikar.BatchJob
     /// <returns></returns>
     public delegate Task<BatchModeResponseDto<KeyDataType>> BatchProcessAsyncFunc<KeyDataType>(List<KeyDataType> batchKeyList, CancellationToken cancellationToken);
     
-    
+    /// <summary>
+    /// Subscriber method which recive event live while batch is processing
+    /// </summary>
+    /// <typeparam name="KeyDataType"></typeparam>
+    /// <param name="batchTxnEvents"></param>
     public delegate void SubscribeBatchEventsFunc<KeyDataType>(BatchTxnEvent<KeyDataType> batchTxnEvents);
     
     
@@ -87,6 +91,12 @@ namespace Raikar.BatchJob
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// Simple Synchronous Batch Job Service
+        /// </summary>
+        /// <param name="keyList">Pass the list of keys to process</param>
+        /// <param name="methodToProcess">Its a delegate pass the transaction method to be called for processing all keys</param>
+        /// <param name="batchProcessMode">Batch Operation Mode</param>
         public BatchJobService(List<KeyDataType> keyList, BatchTxnProcess<KeyDataType> methodToProcess, BatchProcessMode batchProcessMode)
         {
             _batchKeyList = keyList;
@@ -96,6 +106,12 @@ namespace Raikar.BatchJob
             _progressBar = new ProgressBar(_batchKeyListCount, "Batch Job Service", options);
         }
 
+        /// <summary>
+        /// Simple Asynchronous Batch Job Service
+        /// </summary>
+        /// <param name="keyList">Pass the list of keys to process</param>
+        /// <param name="asyncMethodToProcess">Its a delegate pass the async transaction method to be called for processing all keys</param>
+        /// <param name="cancellationToken">Cancellation Token</param>
         public BatchJobService(List<KeyDataType> keyList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess,
             CancellationToken cancellationToken)
         {
@@ -111,7 +127,7 @@ namespace Raikar.BatchJob
         /// </summary>
         /// <param name="keyList">Pass the list of keys to process</param>
         /// <param name="methodToProcess">Its a delegate pass the transaction method to be called for processing all keys</param>
-        /// <param name="batchOptions"></param>
+        /// <param name="batchJobOptions">Batch Job Options</param>
         public BatchJobService(List<KeyDataType> keyList, BatchTxnProcess<KeyDataType> methodToProcess, BatchJobOptions batchJobOptions)
         {
             _batchKeyList = keyList;
@@ -121,8 +137,15 @@ namespace Raikar.BatchJob
             _generateBatchReport = batchJobOptions.GenerateBatchReport;
             _circuitBreakerLimit = batchJobOptions.CircuitBreakerLimit;
             _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
-        }        
+        }
 
+        /// <summary>
+        /// Async Batch job service with Options
+        /// </summary>
+        /// <param name="keyList">Pass the list of keys to process</param>
+        /// <param name="asyncMethodToProcess">Its a delegate pass the async transaction method to be called for processing all keys</param>
+        /// <param name="cancellationToken">Cancellation Token</param>
+        /// <param name="batchJobOptions">Batch Job Options</param>
         public BatchJobService(List<KeyDataType> keyList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, 
             CancellationToken cancellationToken, BatchJobOptions batchJobOptions)
         {
@@ -135,6 +158,12 @@ namespace Raikar.BatchJob
             _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }
 
+        /// <summary>
+        /// Batch job service with Options and Dynamic GetKeyList Method
+        /// </summary>
+        /// <param name="getBatchList">Its a delegate pass the getkey list method which provides the list of keys to process</param>
+        /// <param name="methodToProcess">Its a delegate pass the transaction method to be called for processing all keys</param>
+        /// <param name="batchJobOptions">Batch Job Options</param>
         public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchTxnProcess<KeyDataType> methodToProcess, 
             BatchJobOptions batchJobOptions)
         {
@@ -148,6 +177,13 @@ namespace Raikar.BatchJob
             _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }
 
+        /// <summary>
+        /// Async Batch job service with Options and Dynamic GetKeyList Method
+        /// </summary>
+        /// <param name="getBatchList">Its a delegate pass the getkey list method which provides the list of keys to process</param>
+        /// <param name="asyncMethodToProcess">Its a delegate pass the async transaction method to be called for processing all keys</param>
+        /// <param name="cancellationToken">Cancellation Token</param>
+        /// <param name="batchJobOptions">Batch Job Options</param>
         public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList,BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, 
             CancellationToken cancellationToken, BatchJobOptions batchJobOptions)
         {
@@ -161,6 +197,13 @@ namespace Raikar.BatchJob
             _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }
 
+        /// <summary>
+        /// Batch job service with Subscriber Method
+        /// </summary>
+        /// <param name="getBatchList">Its a delegate pass the getkey list method which provides the list of keys to process</param>
+        /// <param name="methodToProcess">Its a delegate pass the transaction method to be called for processing all keys</param>
+        /// <param name="subscribeEvents">Its a delegate pass the subscriber method</param>
+        /// <param name="batchJobOptions">Batch Job Options</param>
         public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList, BatchTxnProcess<KeyDataType> methodToProcess, 
             SubscribeBatchEventsFunc<KeyDataType> subscribeEvents, BatchJobOptions batchJobOptions)
         {
@@ -176,6 +219,14 @@ namespace Raikar.BatchJob
             _progressBar = new ProgressBar(_batchKeyListCount, batchJobOptions.BatchName, options);
         }
 
+        /// <summary>
+        /// Async Batch job service with Subscriber Method
+        /// </summary>
+        /// <param name="getBatchList">Its a delegate pass the getkey list method which provides the list of keys to process</param>
+        /// <param name="asyncMethodToProcess">Its a delegate pass the async transaction method to be called for processing all keys</param>
+        /// <param name="subscribeEvents">Its a delegate pass the subscriber method</param>
+        /// <param name="cancellationToken">Cancellation Token</param>
+        /// <param name="batchJobOptions">Batch Job Options</param>
         public BatchJobService(GetBatchKeyList<KeyDataType> getBatchList, BatchAsyncTxnProcess<KeyDataType> asyncMethodToProcess, 
             SubscribeBatchEventsFunc<KeyDataType> subscribeEvents, CancellationToken cancellationToken, BatchJobOptions batchJobOptions)
         {

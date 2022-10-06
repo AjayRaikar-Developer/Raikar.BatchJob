@@ -15,14 +15,13 @@
 - Constructor refine 
 - Circuit Breaker
 - A Subscriber method - Which polls results as in run time
-
-## Features Backlog 
-- Create a Nuget Package
 - Code comments
 - Github Package Intro 
 - Github Examples
+
+## Features Backlog 
+- Create a Nuget Package
 - Throtteling | Ratelimiting 
-- BatchName handle in response also compare other batch options
 
 ## Eliminating 
 - Reciving Action Method as input - As this does not support return types
