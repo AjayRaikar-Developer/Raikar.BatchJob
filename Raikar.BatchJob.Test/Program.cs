@@ -9,6 +9,7 @@ Console.WriteLine("Even or Odd Number Check - \n");
 BatchResponse<int> result = new BatchResponse<int>();
 BatchJobTest batchJob = new BatchJobTest();
 
+/*  Note: Un-comment any one of the method which you want to test and keep rest of them commented */
 //Synchronous methods to call
 result = batchJob.SyncForEachBatch();
 //result = batchJob.SyncForEachBatch_WithGetKeyMethod();

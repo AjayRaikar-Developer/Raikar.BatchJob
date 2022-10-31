@@ -5,8 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>Raikar.BatchJob</Title>
-    <Description>This is a batchjob library which help us in processing the data in bulk. 
-with feature like - dynamic strongly typed key mapping, circuit breaker, batch report &amp; many more..!</Description>
+    <Description>Batchjob library which help us in processing the data in bulk. 
+with feature like - dynamic strongly typed key mapping, circuit breaker, batch report and many more..!</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/AjayRaikar-Developer/Raikar.BatchJob</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -23,6 +23,10 @@ It has 3 modes of operation -
  3. Parallel-Foreach-Async - Asynchronous multi threaded
 
 For more details please visit my repo - https://github.com/AjayRaikar-Developer/Raikar.BatchJob</PackageReleaseNotes>
+    <Authors>Raikar</Authors>
+    <Product>BatchJob</Product>
+    <PackageIcon>raikar-logo.jpg</PackageIcon>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,8 +41,16 @@ For more details please visit my repo - https://github.com/AjayRaikar-Developer/
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Update="assets\logo\raikar-logo.jpg">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
 		<None Update="Helper\BatchTemplate.html">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="LICENSE.txt">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 </Project>
