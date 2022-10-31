@@ -1,40 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <Title>Raikar.BatchJob</Title>
-    <Description>Batchjob library which help us in processing the data in bulk. 
-with feature like - dynamic strongly typed key mapping, circuit breaker, batch report and many more..!</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/AjayRaikar-Developer/Raikar.BatchJob</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Batch,BatchJob, MultiThreading, Scheduler</PackageTags>
-    <PackageReleaseNotes>This is a batchjob library which help us in processing the data in bulk. 
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Title>Raikar.BatchJob</Title>
+		<Description>
+			Batchjob library which help us in processing the data in bulk.
+			with feature like - dynamic strongly typed key mapping, circuit breaker, batch report and many more..!
+		</Description>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/AjayRaikar-Developer/Raikar.BatchJob</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Batch,BatchJob, MultiThreading, Scheduler</PackageTags>
+		<PackageReleaseNotes>
+			This is a batchjob library which help us in processing the data in bulk.
 
-With feature like - dynamic strongly key data type mapping, circuit breaker, batch report &amp; many more..!
+			With feature like - dynamic strongly key data type mapping, circuit breaker, batch report &amp; many more..!
 
-.NET 6 ready!
+			.NET 6 ready!
 
-It has 3 modes of operation -  
- 1. Foreach - Synchronous single threaded 
- 2. Parallel-Foreach - Synchronous multi threaded
- 3. Parallel-Foreach-Async - Asynchronous multi threaded
+			It has 3 modes of operation -
+			1. Foreach - Synchronous single threaded
+			2. Parallel-Foreach - Synchronous multi threaded
+			3. Parallel-Foreach-Async - Asynchronous multi threaded
 
-For more details please visit my repo - https://github.com/AjayRaikar-Developer/Raikar.BatchJob</PackageReleaseNotes>
-    <Authors>Raikar</Authors>
-    <Product>BatchJob</Product>
-    <PackageIcon>raikar-logo.jpg</PackageIcon>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-  </PropertyGroup>
+			For more details please visit my repo - https://github.com/AjayRaikar-Developer/Raikar.BatchJob
+		</PackageReleaseNotes>
+		<Authors>Raikar</Authors>
+		<Product>BatchJob</Product>
+		<PackageIcon>raikar-logo.jpg</PackageIcon>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="ShellProgressBar" Version="5.2.0" />
@@ -42,15 +47,15 @@ For more details please visit my repo - https://github.com/AjayRaikar-Developer/
 
 	<ItemGroup>
 		<None Update="assets\logo\raikar-logo.jpg">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
 		</None>
 		<None Update="Helper\BatchTemplate.html">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="LICENSE.txt">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 </Project>
