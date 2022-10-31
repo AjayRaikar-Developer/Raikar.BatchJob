@@ -5,60 +5,68 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Title>Raikar.BatchJob</Title>
-		<Description>
-			Batchjob library which help us in processing the data in bulk.
-			with feature like - dynamic strongly typed key mapping, circuit breaker, batch report and many more..!
+		<Description>Batchjob library which help us in processing the data in bulk.
+with feature like - dynamic strongly typed key mapping, circuit breaker, batch report and many more..!
 		</Description>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/AjayRaikar-Developer/Raikar.BatchJob</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Batch,BatchJob, MultiThreading, Scheduler</PackageTags>
-		<PackageReleaseNotes>
-			This is a batchjob library which help us in processing the data in bulk.
+		<PackageReleaseNotes>This is a batchjob library which help us in processing the data in bulk.
 
-			With feature like - dynamic strongly key data type mapping, circuit breaker, batch report &amp; many more..!
+With feature like - dynamic strongly key data type mapping, circuit breaker, batch report &amp; many more..!
 
-			.NET 6 ready!
+.NET 6 ready!
 
-			It has 3 modes of operation -
-			1. Foreach - Synchronous single threaded
-			2. Parallel-Foreach - Synchronous multi threaded
-			3. Parallel-Foreach-Async - Asynchronous multi threaded
+It has 3 modes of operation -
+1. Foreach - Synchronous single threaded
+2. Parallel-Foreach - Synchronous multi threaded
+3. Parallel-Foreach-Async - Asynchronous multi threaded
 
-			For more details please visit my repo - https://github.com/AjayRaikar-Developer/Raikar.BatchJob
+For more details please visit my repo - https://github.com/AjayRaikar-Developer/Raikar.BatchJob
 		</PackageReleaseNotes>
-		<Authors>Raikar</Authors>
+		<Authors>Ajay Raikar</Authors>
 		<Product>BatchJob</Product>
 		<PackageIcon>raikar-logo.jpg</PackageIcon>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Company>Raikar</Company>
+		<Version>1.0.6</Version>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<None Include="..\LICENSE.md">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
-		</None>
-		<None Include="..\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="ShellProgressBar" Version="5.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="assets\logo\raikar-logo.jpg">
+		<None Update="raikar-logo.jpg">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
-		</None>
-		<None Update="Helper\BatchTemplate.html">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="LICENSE.txt">
+		<None Include="..\README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+
+		<None Update="Helper\BatchTemplate.html">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>		
 	</ItemGroup>
+
+	<!--<ItemGroup>
+		<Content Include="Helper\BatchTemplate.html">
+			<Pack>true</Pack>
+			<PackagePath>lib\net6.0\Helper\</PackagePath>
+		</Content>
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<None Update="Helper\BatchTemplate.html">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+		</None>
+	</ItemGroup>-->
+	
 </Project>

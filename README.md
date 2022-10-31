@@ -13,16 +13,23 @@ It has 3 modes of operation -
 > *Default operation mode of batch is **Foreach*** 
 
 # Install
+Get it on nuget: https://www.nuget.org/packages/Raikar.BatchJob/
 
+Using Pacakage Manager Console: 
+```PM
+ NuGet\Install-Package Raikar.BatchJob -Version 1.0.0
+ ```
 
 # Usage  
+Usage is really straightforward
+
 ## Dynamic Key List Synchronous Example 
 ```csharp
 //Key List
 List<int> _keyList = Enumerable.Range(1, 50).ToList();
 
 //Transaction Method
- public TxnResponse TxnProcess(int Key)
+public TxnResponse TxnProcess(int Key)
 {
     TxnResponse response = new TxnResponse();
     response.TxnStatus = true;
@@ -40,7 +47,8 @@ List<int> _keyList = Enumerable.Range(1, 50).ToList();
 }
 
 //Transaction Method mapping to the delegate BatchTxnProcess
-//This _process is passed as input to the batch configuration
+//This _process is passed as input to the batch configuration 
+//Declare it in a constructor or a method
 BatchTxnProcess<int> _process = new BatchTxnProcess<int>(TxnProcess);
 
 //Configuring the BatchJob and Executing
