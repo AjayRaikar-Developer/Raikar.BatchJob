@@ -150,3 +150,7 @@ public BatchResponse<int> SyncForEachBatch_WithOptions()
 - Console Loader Untill the batch is progressing
 
 > ***Hit that Star button to show some ❤️***
+
+> **Also you can support me here**
+
+<a href="https://www.buymeacoffee.com/ajayraikar123"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" width="200" /></a>
